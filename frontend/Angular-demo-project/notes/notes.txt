@@ -1,1 +1,2 @@
 1. Add service in providers tag
+2. Angualr Language Service provide support for compilation error code completion
