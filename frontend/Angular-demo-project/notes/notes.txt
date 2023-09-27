@@ -1,2 +1,3 @@
 1. Add service in providers tag
 2. Angualr Language Service provide support for compilation error code completion
+3. NG BOOTSPRAP GOOD LIB FOR pagination date picker etc
