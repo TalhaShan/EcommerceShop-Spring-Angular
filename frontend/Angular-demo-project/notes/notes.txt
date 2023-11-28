@@ -3,3 +3,5 @@
 3. NG BOOTSPRAP GOOD LIB FOR pagination date picker etc
 4. subject is subclass for observerable publish subscribe
 5. Replay  subjext
+6. .d.ts  for declartion 
+
