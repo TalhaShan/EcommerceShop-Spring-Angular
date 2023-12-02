@@ -18,16 +18,17 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './components/login/login.component';
 import { LoginStatusComponent } from './components/login-status/login-status.component';
 import {
-    OktaAuthModule,
-    OktaCallbackComponent,
-    OKTA_CONFIG,
-    OktaAuthGuard
+  OktaAuthModule,
+  OktaCallbackComponent,
+  OKTA_CONFIG,
+  OktaAuthGuard
 } from '@okta/okta-angular';
 
-import {OktaAuth} from '@okta/okta-auth-js';
+import { OktaAuth } from '@okta/okta-auth-js';
 
 import myAppConfig from './config/my-app-config';
 import { MembersPageComponent } from './components/members-page/members-page.component';
+import { OrderHistoryComponent } from './components/order-history/order-history.component';
 
 
 const oktaConfig = myAppConfig.oidc;
@@ -35,57 +36,66 @@ const oktaAuth = new OktaAuth(oktaConfig);
 
 
 
-function sendToLoginPage(oktaAuth:OktaAuth, injector:Injector){
-//use injector to access any service avb with your application
-const router = injector.get(Router);
-//Redirect user to custom login page
+function sendToLoginPage(oktaAuth: OktaAuth, injector: Injector) {
+  //use injector to access any service avb with your application
+  const router = injector.get(Router);
+  //Redirect user to custom login page
   router.navigate(['/login']);
 }
 
 //specific to genric path always the first mathc wins or return
 const routes: Routes = [
 
-    { path: 'members', component: MembersPageComponent, canActivate: [OktaAuthGuard],
-        data: {onAuthRequired: sendToLoginPage} },  //if authenticate then give access to the route else send back to login oktaauthguard doing
+  {
+    path: 'order-history', component: OrderHistoryComponent, canActivate: [OktaAuthGuard],
+    data: { onAuthRequired: sendToLoginPage }
+  },  //if authenticate then give access to the route else send back to login oktaauthguard doing
 
-    { path: 'login/callback', component: OktaCallbackComponent },
-    { path: 'login', component: LoginComponent },
+  {
+    path: 'members', component: MembersPageComponent, canActivate: [OktaAuthGuard],
+    data: { onAuthRequired: sendToLoginPage }
+  },  //if authenticate then give access to the route else send back to login oktaauthguard doing
 
-    { path: 'checkout', component: CheckoutComponent },
-    { path: 'cart-details', component: CartDetailsComponent },
-    { path: 'products/:id', component: ProductDetailsComponent },
-    { path: 'search/:keyword', component: ProductListComponent },
-    { path: 'category/:id', component: ProductListComponent },
-    { path: 'category', component: ProductListComponent },
-    { path: 'products', component: ProductListComponent },
-    { path: '', redirectTo: '/products', pathMatch: 'full' },
-  {path: '**', redirectTo: '/products', pathMatch: 'full'}
+
+  { path: 'login/callback', component: OktaCallbackComponent },
+  { path: 'login', component: LoginComponent },
+
+  { path: 'checkout', component: CheckoutComponent },
+  { path: 'cart-details', component: CartDetailsComponent },
+  { path: 'products/:id', component: ProductDetailsComponent },
+  { path: 'search/:keyword', component: ProductListComponent },
+  { path: 'category/:id', component: ProductListComponent },
+  { path: 'category', component: ProductListComponent },
+  { path: 'products', component: ProductListComponent },
+  { path: '', redirectTo: '/products', pathMatch: 'full' },
+  { path: '**', redirectTo: '/products', pathMatch: 'full' }
 ];
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        SalesPersonListComponent,
-        ProductListComponent,
-        ProductCategoryMenuComponent,
-        SearchComponent,
-        ProductDetailsComponent,
-        CartStatusComponent,
-        CartDetailsComponent,
-        CheckoutComponent,
-        LoginComponent,
-        LoginStatusComponent,
-        MembersPageComponent
-    ],
-    imports: [
-        RouterModule.forRoot(routes),
-        BrowserModule,
-        HttpClientModule,
-        NgbModule,
-        ReactiveFormsModule,
-        OktaAuthModule
-    ],
-  providers: [ProductService, { provide: OKTA_CONFIG, useValue: { oktaAuth }}],
-    bootstrap: [AppComponent]
+  declarations: [
+    AppComponent,
+    SalesPersonListComponent,
+    ProductListComponent,
+    ProductCategoryMenuComponent,
+    SearchComponent,
+    ProductDetailsComponent,
+    CartStatusComponent,
+    CartDetailsComponent,
+    CheckoutComponent,
+    LoginComponent,
+    LoginStatusComponent,
+    MembersPageComponent,
+    OrderHistoryComponent
+  ],
+  imports: [
+    RouterModule.forRoot(routes),
+    BrowserModule,
+    HttpClientModule,
+    NgbModule,
+    ReactiveFormsModule,
+    OktaAuthModule
+  ],
+  providers: [ProductService, { provide: OKTA_CONFIG, useValue: { oktaAuth } }],
+  bootstrap: [AppComponent]
 })
 export class AppModule { }

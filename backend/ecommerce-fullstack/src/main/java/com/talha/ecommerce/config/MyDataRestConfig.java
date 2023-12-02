@@ -1,9 +1,6 @@
 package com.talha.ecommerce.config;
 
-import com.talha.ecommerce.entity.Country;
-import com.talha.ecommerce.entity.Product;
-import com.talha.ecommerce.entity.ProductCategory;
-import com.talha.ecommerce.entity.State;
+import com.talha.ecommerce.entity.*;
 import jakarta.persistence.EntityManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +40,7 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
         disableHttpMethods(ProductCategory.class,config, theUnsupportedActions);
         disableHttpMethods(Country.class,config, theUnsupportedActions);
         disableHttpMethods(State.class,config, theUnsupportedActions);
+        disableHttpMethods(Order.class,config, theUnsupportedActions);
         //call an internal helper method
         exposeIds(config);
 

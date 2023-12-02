@@ -22,6 +22,8 @@ export class CheckoutComponent implements OnInit {
   totalPrice: number = 0;
   totalQuantity: number = 0;
 
+  storage: Storage = sessionStorage;
+
   creditCardYears: number[] = [];
   creditCardMonths: number[] = [];
 
@@ -37,11 +39,13 @@ export class CheckoutComponent implements OnInit {
 
     this.reviewCartDetails();
 
+    const theEmail = JSON.parse(this.storage.getItem('userEmail')!);
+
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
         firstName: new FormControl('', [Validators.required, Validators.minLength(2), ShopValidator.notOnlyWhiteSpaces]),
         lastName: new FormControl('', [Validators.required, Validators.minLength(2), ShopValidator.notOnlyWhiteSpaces]),
-        email: new FormControl('',
+        email: new FormControl(theEmail,
           [Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')])
       }),
       shippingAddress: this.formBuilder.group({
@@ -142,7 +146,7 @@ export class CheckoutComponent implements OnInit {
 
 
     //billing
-    
+
     purchase.billingAddress = this.checkoutFormGroup.controls['billingAddress'].value;
     const billingState: State = JSON.parse(JSON.stringify(purchase.billingAddress.state));
     const billingCountry: Country = JSON.parse(JSON.stringify(purchase.billingAddress.country));
@@ -154,22 +158,22 @@ export class CheckoutComponent implements OnInit {
     purchase.orderItems = orderItems;
 
     this.checkoutService.placeOrder(purchase).subscribe({
-      next: response=>{
-          alert(`Your order has been recevied: ${response.orderTrackingNumber}`);
-          this.resetCart();
+      next: response => {
+        alert(`Your order has been recevied: ${response.orderTrackingNumber}`);
+        this.resetCart();
       },
-      error:err =>{
+      error: err => {
         alert(`there is some error in placing order :${err.message}`);
       }
 
     }
-    
+
     )
 
   }
   resetCart() {
 
-    this.cartService.cartItems=[];
+    this.cartService.cartItems = [];
     this.cartService.totalPrice.next(0);
     this.cartService.totalQuantity.next(0);
 
