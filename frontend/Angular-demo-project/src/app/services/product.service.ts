@@ -3,17 +3,18 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { Product } from '../common/product';
 import { ProductCategory } from '../common/product-category';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
 
+  // private baseUrl = "http://localhost:8080/api/products";
+  // private categoryUrl = "http://localhost:8080/api/product-category";
 
-
-  private baseUrl = "http://localhost:8080/api/products";
-
-  private categoryUrl = "http://localhost:8080/api/product-category";
+  private baseUrl = environment.backendBaseUrl + '/products';
+  private categoryUrl = environment.backendBaseUrl + '/product-category';
 
   constructor(private httpClient: HttpClient) { }
 
@@ -28,9 +29,9 @@ export class ProductService {
 
 
   getProductListPaginate(thePage: number, thePageSize: number, theCategoryId: number)
-  : Observable<GetResponseProducts> {
+    : Observable<GetResponseProducts> {
     const searchUrl = `${this.baseUrl}/search/findByCategoryId?id=${theCategoryId}`
-    +`&page=${thePage}&size=${thePageSize}`;
+      + `&page=${thePage}&size=${thePageSize}`;
 
     return this.httpClient.get<GetResponseProducts>(searchUrl);
   }
@@ -52,9 +53,9 @@ export class ProductService {
   }
 
   searchProductsPaginate(thePage: number, thePageSize: number, theKeyword: string)
-  : Observable<GetResponseProducts> {
+    : Observable<GetResponseProducts> {
     const searchUrl = `${this.baseUrl}/search/findByNameContaining?name=${theKeyword}`
-    +`&page=${thePage}&size=${thePageSize}`;
+      + `&page=${thePage}&size=${thePageSize}`;
 
     return this.httpClient.get<GetResponseProducts>(searchUrl);
   }

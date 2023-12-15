@@ -13,7 +13,16 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/demo-project",
+            "allowedCommonJsDependencies": [
+              "lodash",
+              "@babel/runtime-corejs3",
+              "@okta/okta-signin-widget",
+              "detect-node",
+              "tiny-emitter",
+              "p-cancelable",
+              "cross-fetch"
+            ],
+            "outputPath": "dist/angular-ecommerce",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -48,13 +57,27 @@
               ],
               "outputHashing": "all"
             },
+            "qa": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.qa.ts"
+                }
+              ]
+            },
             "development": {
               "buildOptimizer": false,
               "optimization": false,
               "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
-              "namedChunks": true
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.development.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -67,6 +90,9 @@
             },
             "development": {
               "browserTarget": "demo-project:build:development"
+            },
+            "qa": {
+              "browserTarget": "demo-project:build:qa"
             }
           },
           "defaultConfiguration": "development"

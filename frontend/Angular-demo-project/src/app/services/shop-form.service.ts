@@ -4,14 +4,17 @@ import { Observable, of } from 'rxjs';
 import { Country } from '../common/country';
 import { map } from 'rxjs/operators';
 import { State } from '../common/state';
+import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root'
 })
 export class ShopFormService {
 
+  // private countriesUrl = "http://localhost:8080/api/countries";
+  // private statesUrl = "http://localhost:8080/api/states";
 
-  private countriesUrl = "http://localhost:8080/api/countries";
-  private statesUrl = "http://localhost:8080/api/states";
+  private countriesUrl = environment.backendBaseUrl + '/countries';
+  private statesUrl = environment.backendBaseUrl + '/states';
 
   constructor(private httpClient: HttpClient) { }
 
@@ -22,12 +25,12 @@ export class ShopFormService {
     );
   }
 
-  getStates(theCountryCode:string): Observable<State[]> {
-    const searchStateUrl =  `${this.statesUrl}/search/findByCountryCode?code=${theCountryCode}`
+  getStates(theCountryCode: string): Observable<State[]> {
+    const searchStateUrl = `${this.statesUrl}/search/findByCountryCode?code=${theCountryCode}`
     return this.httpClient.get<GetResponseStates>(searchStateUrl).pipe(
       map(response => response._embedded.states)
     );
-  
+
   }
   getCreditCardMonths(startMonth: number): Observable<number[]> {
     let data: number[] = [];
@@ -54,7 +57,7 @@ interface GetResponseCountries {
   }
 }
 
-interface GetResponseStates{
+interface GetResponseStates {
   _embedded: {
     states: State[];
   }
