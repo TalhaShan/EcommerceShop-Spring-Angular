@@ -4,12 +4,14 @@ import { Router } from '@angular/router';
 import { Country } from 'src/app/common/country';
 import { Order } from 'src/app/common/order';
 import { OrderItem } from 'src/app/common/order-item';
+import { PaymentInfo } from 'src/app/common/payment-info';
 import { Purchase } from 'src/app/common/purchase';
 import { State } from 'src/app/common/state';
 import { CartService } from 'src/app/services/cart.service';
 import { CheckoutService } from 'src/app/services/checkout.service';
 import { ShopFormService } from 'src/app/services/shop-form.service';
 import { ShopValidator } from 'src/app/validators/shop-validator';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-checkout',
@@ -32,10 +34,20 @@ export class CheckoutComponent implements OnInit {
   shippingAddressStates: State[] = [];
   billingAddressStates: State[] = [];
 
+  //Stripe Intilization
+  stripe = Stripe(environment.stripePublishableKey);
+  paymentInfo: PaymentInfo = new PaymentInfo();
+  cardElement: any;
+  displayError: any = "";
+
+
+
   constructor(private formBuilder: FormBuilder,
     private shopForm: ShopFormService, private cartService: CartService,
     private checkoutService: CheckoutService, private router: Router) { }
   ngOnInit(): void {
+
+    this.setupStripePaymentForm();
 
     this.reviewCartDetails();
 
@@ -63,6 +75,7 @@ export class CheckoutComponent implements OnInit {
         zipCode: new FormControl('', [Validators.required, Validators.minLength(2), ShopValidator.notOnlyWhiteSpaces])
       }),
       creditCard: this.formBuilder.group({
+        /*
         cardType: new FormControl('', [Validators.required]),
         nameOnCard: new FormControl('', [Validators.required, Validators.minLength(2),
         ShopValidator.notOnlyWhiteSpaces]),
@@ -70,10 +83,12 @@ export class CheckoutComponent implements OnInit {
         securityCode: new FormControl('', [Validators.required, Validators.pattern('[0-9]{3}')]),
         expirationMonth: [''],
         expirationYear: ['']
+        */
       }),
     });
 
     //Populate credit Card month 
+    /*
     const startMonth: number = new Date().getMonth() + 1;
     console.log("startMonth" + startMonth);
 
@@ -90,6 +105,7 @@ export class CheckoutComponent implements OnInit {
         this.creditCardYears = data;
       }
     );
+    */
     //populate countries
 
     this.shopForm.getCountries().subscribe(
@@ -98,6 +114,25 @@ export class CheckoutComponent implements OnInit {
         this.countries = data;
       }
     );
+  }
+  setupStripePaymentForm() {
+
+    var elements = this.stripe.elements();
+
+    this.cardElement = elements.create('card', { hidePostalCode: true });
+
+    this.cardElement.mount('#card-element');
+
+    this.cardElement.on('change', (event: any) => {
+      this.displayError = document.getElementById('card-errors');
+
+      if (event.complete) {
+        this.displayError.textContent = '';
+      } else if (event.error) {
+        this.displayError.textContent = event.error.message;
+      }
+    })
+
   }
   reviewCartDetails() {
     //subscribe to cartService totalQuantity
