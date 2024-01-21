@@ -13,6 +13,7 @@ import { ShopFormService } from 'src/app/services/shop-form.service';
 import { ShopValidator } from 'src/app/validators/shop-validator';
 import { environment } from 'src/environments/environment';
 
+
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
@@ -39,7 +40,7 @@ export class CheckoutComponent implements OnInit {
   paymentInfo: PaymentInfo = new PaymentInfo();
   cardElement: any;
   displayError: any = "";
-
+  isDisabled: boolean = false;
 
 
   constructor(private formBuilder: FormBuilder,
@@ -87,7 +88,7 @@ export class CheckoutComponent implements OnInit {
       }),
     });
 
-    //Populate credit Card month 
+    //Populate credit Card month
     /*
     const startMonth: number = new Date().getMonth() + 1;
     console.log("startMonth" + startMonth);
@@ -192,26 +193,75 @@ export class CheckoutComponent implements OnInit {
     purchase.order = order;
     purchase.orderItems = orderItems;
 
-    this.checkoutService.placeOrder(purchase).subscribe({
-      next: response => {
-        alert(`Your order has been recevied: ${response.orderTrackingNumber}`);
-        this.resetCart();
-      },
-      error: err => {
-        alert(`there is some error in placing order :${err.message}`);
-      }
 
+    //compute payment Info
+    this.paymentInfo.amount = Math.round(this.totalPrice * 100);
+    this.paymentInfo.currency = 'USD';
+    this.paymentInfo.recepitEmail = purchase.customer.email;
+
+    // if valid form then
+    // - create payment intent
+    // - confirm card payment
+    // - place order
+
+    if (!this.checkoutFormGroup.invalid && this.displayError.textContent === "") {
+      this.isDisabled = true;
+    
+      this.checkoutService.createPaymentIntent(this.paymentInfo).subscribe(
+        (paymentIntentResponse) => {
+          this.stripe.confirmCardPayment(paymentIntentResponse.client_secret, {
+            payment_method: {
+              card: this.cardElement,
+              billing_details: {
+                email: purchase.customer.email,
+                name: `${purchase.customer.firstName} ${purchase.customer.lastName}`,
+                address: {
+                  line1: purchase.billingAddress.street,
+                  city: purchase.billingAddress.city,
+                  state: purchase.billingAddress.state,
+                  postal_code: purchase.billingAddress.zipCode,
+                  country: this.billingAddressCountry!.value.code
+                }
+              }
+            }
+          }, { handleActions: false })
+          .then((result: { error: { message: any; }; }) => {
+            if (result.error) {
+              // inform the customer there was an error
+              alert(`There was an error: ${result.error.message}`);
+            } else {
+              // call REST API via the CheckoutService
+              this.checkoutService.placeOrder(purchase).subscribe({
+                next: (response: { orderTrackingNumber: any; }) => {
+                  alert(`Your order has been received.\nOrder tracking number: ${response.orderTrackingNumber}`);
+    
+                  // reset cart
+                  this.resetCart();
+                },
+                error: err => {
+                  alert(`There was an error: ${err.message}`);
+                },
+                complete: () => {
+                  this.isDisabled = false;
+                }
+              });
+            }
+          });
+        }
+      );
+    }else {
+      this.checkoutFormGroup.markAllAsTouched();
+      return;
     }
 
-    )
-
   }
+
   resetCart() {
 
     this.cartService.cartItems = [];
     this.cartService.totalPrice.next(0);
     this.cartService.totalQuantity.next(0);
-
+    this.cartService.persistCartItems();
     this.checkoutFormGroup.reset();
 
     this.router.navigateByUrl("/products")

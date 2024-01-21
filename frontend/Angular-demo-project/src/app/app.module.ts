@@ -1,6 +1,6 @@
 import { Injector, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { SalesPersonListComponent } from './sales-person-list/sales-person-list.component';
 import { ProductListComponent } from './components/product-list/product-list.component';
@@ -94,7 +94,8 @@ const routes: Routes = [
     HttpClientModule,
     NgbModule,
     ReactiveFormsModule,
-    OktaAuthModule
+    OktaAuthModule,
+    FormsModule
   ],
   providers: [ProductService, { provide: OKTA_CONFIG, useValue: { oktaAuth } },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true }],
